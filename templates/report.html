@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forensic SEO Audit Report</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        body { background-color: #f4f4f9; }
+        .report-box {
+            background-color: #1e1e1e;
+            color: #00ff41; /* Hacker/Terminal green */
+            padding: 30px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap; /* Crucial to preserve Python line breaks */
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #333;
+        }
+        .btn-back { margin-bottom: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="btn-back">⬅ BACK TO SEARCH</a>
+        <h1>TECHNICAL AUDIT COMPLETED</h1>
+    </header>
+
+    <div class="report-box">
+{{ report_text }}
+    </div>
+
+    <footer style="margin-top: 30px; text-align: center;">
+        <button onclick="window.print()">EXPORT AS PDF / PRINT</button>
+    </footer>
+</body>
+</html>
