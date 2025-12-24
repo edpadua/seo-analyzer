@@ -2,6 +2,8 @@
 
 A professional-grade SEO analysis tool built with Python, FastAPI, and NLP (Natural Language Processing). This application simulates a technical audit by a search engine specialist, analyzing webpage health and semantic relevance for a specific target keyword.
 
+![image](https://github.com/edpadua/seo-analyzer/blob/main/chrome-capture-2025-12-24.gif)
+
 ## 🚀 Key Features
 
 - Forensic Technical Audit: Deep analysis of Title tags, H1 hierarchy, and metadata structure.
