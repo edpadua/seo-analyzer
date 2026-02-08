@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% block body_content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-sm p-4">
+            <h2 class="h4 text-center mb-4">Sign in to SEO Pro</h2>
+            <form action="/login-email" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-2">Sign in with Email</button>
+            </form>
+            <div class="text-center my-3 text-muted small">or</div>
+            <a href="/login" class="btn btn-outline-danger w-100">Sign in with Google</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

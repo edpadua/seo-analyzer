@@ -1,0 +1,196 @@
+{% extends "layouts/base_site.html" %}
+
+{% block title %}SEO Battle: {{ keyword }}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/reports.css">
+    <style>
+        .battle-container { max-width: 1440px; margin: 0 auto; padding: 20px; }
+        
+        /* Layout de comparação lado a lado */
+        .comparison-grid { 
+            display: flex; 
+            gap: 20px; 
+            align-items: flex-start; 
+            margin-top: 30px;
+        }
+        
+        .audit-column { 
+            flex: 1; 
+            min-width: 0; 
+            background: #ffffff; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .col-header { 
+            padding: 20px; 
+            text-align: center; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .header-you { background: #3b82f6; }
+        .header-rival { background: #ef4444; }
+
+        .audit-body { padding: 20px; }
+
+        /* Estilos para os cards injetados via h1 e h2 */
+        .audit-card { border: 1px solid #edf2f7; margin-bottom: 20px; border-radius: 8px; }
+        .card-header { background: #f7fafc; padding: 12px; font-weight: bold; border-bottom: 1px solid #edf2f7; }
+        .data-row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        
+        /* Badges de Checklist */
+        .tag-sim { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .tag-nao { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+
+        @media (max-width: 992px) { .comparison-grid { flex-direction: column; } }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="battle-container">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">⚔️ SEO Battle</h1>
+        <p class="text-muted">Detailed Comparison: <strong>{{ keyword }}</strong></p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-7 bg-white p-4 rounded shadow-sm border">
+            <h5 class="text-center fw-bold mb-4 text-secondary">Overall Scores Overview</h5>
+            <canvas id="radarChart" style="max-height: 380px;"></canvas>
+        </div>
+    </div>
+
+    {% if gap_html %}
+    <div class="mb-5">
+        {{ gap_html | safe }}
+    </div>
+    {% endif %}
+
+    {% if ai_strategy %}
+    <div class="audit-card mt-4 border-primary">
+        <div class="card-header bg-primary text-white">🚀 AI Content Strategy (NLP)</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 border-end">
+                    <h6 class="fw-bold">🚨 Topic Gap (What's missing on your site)</h6>
+                    <p class="small text-muted">{{ ai_strategy.topic_gap }}</p>
+                    <h6 class="fw-bold">🧠 Suggested LSI Keywords:</h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for word in ai_strategy.lsi_keywords %}
+                            <span class="badge bg-light text-dark border">{{ word }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6 class="fw-bold">📝 Meta Tags Suggestions (High Conversion)</h6>
+                    {% for meta in ai_strategy.meta_suggestions %}
+                    <div class="mb-3 p-2 bg-light rounded border">
+                        <div class="text-primary small fw-bold">{{ meta.title }}</div>
+                        <div class="x-small text-muted">{{ meta.desc }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="comparison-grid">
+        <div class="audit-column">
+            <div class="col-header header-you">
+                YOU
+                <div class="small fw-light" style="font-size: 0.7rem;">{{ u1 }}</div>
+            </div>
+            <div class="audit-body">
+                <div class="audit-card mb-4 border-primary shadow-sm">
+                    <div class="card-header bg-light"><i class="fa-solid fa-gauge-high me-2"></i>Performance (Web Vitals)</div>
+                    <div class="p-3 d-flex justify-content-around text-center">
+                        <div>
+                            <div class="small text-muted">LCP</div>
+                            <div class="fw-bold text-{{ v1.lcp.status }}">{{ v1.lcp.value }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">FCP</div>
+                            <div class="fw-bold text-{{ v1.fcp.status }}">{{ v1.fcp.value }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">CLS</div>
+                            <div class="fw-bold text-{{ v1.cls.status }}">{{ v1.cls.value }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{ h1 | safe }}
+            </div>
+        </div>
+
+        <div class="audit-column">
+            <div class="col-header header-rival">
+                COMPETITOR
+                <div class="small fw-light" style="font-size: 0.7rem;">{{ u2 }}</div>
+            </div>
+            <div class="audit-body">
+                <div class="audit-card mb-4 border-danger shadow-sm">
+                    <div class="card-header bg-light"><i class="fa-solid fa-gauge-high me-2"></i>Performance (Web Vitals)</div>
+                    <div class="p-3 d-flex justify-content-around text-center">
+                        <div>
+                            <div class="small text-muted">LCP</div>
+                            <div class="fw-bold text-{{ v2.lcp.status }}">{{ v2.lcp.value }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">FCP</div>
+                            <div class="fw-bold text-{{ v2.fcp.status }}">{{ v2.fcp.value }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">CLS</div>
+                            <div class="fw-bold text-{{ v2.cls.status }}">{{ v2.cls.value }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{ h2 | safe }}
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5 mb-5 no-print">
+        <button onclick="window.print()" class="btn btn-outline-dark btn-lg">
+            <i class="fa-solid fa-print me-2"></i> PRINT ANALYSIS
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const s1 = JSON.parse('{{ s1_json | safe }}');
+        const s2 = JSON.parse('{{ s2_json | safe }}');
+        
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Performance', 'On-Page', 'Semantic', 'Authority', 'Schema'],
+                datasets: [{
+                    label: 'YOU',
+                    data: [s1.performance, s1.on_page, s1.semantic, s1.authority, s1.schema],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 3
+                }, {
+                    label: 'COMPETITOR',
+                    data: [s2.performance, s2.on_page, s2.semantic, s2.authority, s2.schema],
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    borderColor: '#ef4444',
+                    borderWidth: 3
+                }]
+            },
+            options: { scales: { r: { min: 0, max: 100, ticks: { display: false } } } }
+        });
+    });
+</script>
+{% endblock %}

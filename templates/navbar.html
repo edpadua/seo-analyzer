@@ -1,0 +1,28 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">🚀 SEO Pro</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#audit-section">Audit</a></li>
+                
+                {% if user %}
+                    <li class="nav-item"><a class="nav-link border-start ms-lg-3 ps-lg-3" href="/admin">Admin Panel</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <div class="d-flex align-items-center bg-secondary rounded-pill px-3 py-1 text-white">
+                            <small class="me-2">{{ user.name }}</small>
+                            <img src="{{ user.picture }}" width="24" height="24" class="rounded-circle">
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item ms-lg-3">
+                        <a href="/login" class="btn btn-primary btn-sm px-4 rounded-pill">Sign In</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

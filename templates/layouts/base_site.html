@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+
+{% block body_content %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">🚀 SEO Pro</a>
+            <div class="ms-auto d-flex align-items-center">
+                
+                <a href="/dashboard" class="btn btn-outline-info btn-sm me-2 position-relative">
+                    <i class="fa-solid fa-chart-line me-1"></i> Ranking
+                    {% if rank_up %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                        ↑
+                        <span class="visually-hidden">Ranking increased</span>
+                    </span>
+                    {% endif %}
+                </a>
+
+                <a href="/admin" class="btn btn-outline-light btn-sm me-2">History</a>
+                <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-4 bg-light min-vh-100">
+        {% block content %}{% endblock %}
+    </main>
+{% endblock %}

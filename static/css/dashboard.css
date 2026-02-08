@@ -1,0 +1,78 @@
+/* Layout do Dashboard */
+.sidebar {
+    min-width: 260px;
+    max-width: 260px;
+    background: #1e293b;
+    min-height: 100vh;
+    color: white;
+    position: fixed;
+}
+
+.content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    padding: 30px;
+}
+
+/* Sidebar Components */
+.user-section {
+    padding: 30px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+}
+
+.user-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    margin-bottom: 12px;
+}
+
+.nav-link {
+    color: #94a3b8;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
+
+/* Stat Widgets */
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.icon-box {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-right: 16px;
+}
+
+/* Tabelas */
+.table-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 30px;
+    border: 1px solid #e2e8f0;
+}
+
+.table thead {
+    background: #f8fafc;
+}

@@ -1,27 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEO Analyzer - Forensic Audit</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-</head>
-<body>
-    <header style="text-align: center;">
-        <h1>🔍 SEO Auditor & NLP Specialist</h1>
-        <p>Google RankBrain Algorithm Simulation</p>
-    </header>
+{% extends "layouts/base_site.html" %}
 
-    <main>
-        <form action="/analyze" method="post">
-            <label for="url">Audit URL:</label>
-            <input type="url" id="url" name="url" placeholder="https://example.com" required>
+{% block title %}SEO Audit - SEO Pro{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
             
-            <label for="keyword">Target Keyword:</label>
-            <input type="text" id="keyword" name="keyword" placeholder="e.g., best python course" required>
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+
+            <ul class="nav nav-pills nav-justified mb-4 shadow-sm rounded p-1 bg-white" id="seoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="single-tab" data-bs-toggle="pill" data-bs-target="#single" type="button" role="tab">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i>Single Audit
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="battle-tab" data-bs-toggle="pill" data-bs-target="#battle" type="button" role="tab">
+                        <i class="fa-solid fa-bolt me-2 text-warning"></i>SEO Battle
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="seoTabsContent">
+                <div class="tab-pane fade show active" id="single" role="tabpanel">
+                    <div class="card border-0 shadow-lg p-4">
+                        <form action="/audit" method="post" id="auditForm">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Your Website URL</label>
+                                <input type="url" name="url" class="form-control form-control-lg" placeholder="https://your-site.com" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Keyword for Analysis</label>
+                                <div class="btn-group w-100 mb-3" role="group">
+                                    <input type="radio" class="btn-check" name="keyword_mode" id="audit_manual" value="manual" checked onchange="toggleKeywordInput('audit')">
+                                    <label class="btn btn-outline-secondary" for="audit_manual">Manual</label>
+                                    
+                                    <input type="radio" class="btn-check" name="keyword_mode" id="audit_auto" value="auto" onchange="toggleKeywordInput('audit')">
+                                    <label class="btn btn-outline-secondary" for="audit_auto">Automatic (Detect from Code)</label>
+                                </div>
+                                <div id="audit_kw_container">
+                                    <input type="text" name="keyword" id="audit_kw_input" class="form-control" placeholder="Ex: Best running shoes">
+                                </div>
+                                <div id="audit_kw_auto_msg" class="text-muted small mt-2 d-none">
+                                    <i class="fa-solid fa-robot me-1"></i> AI will detect the main keyword from the website source code.
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow" id="btn-audit">
+                                <span class="spinner-border spinner-border-sm d-none me-2"></span>
+                                <span class="btn-text">Analyze My Site</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="battle" role="tabpanel">
+                    <div class="card border-0 shadow-lg p-4">
+                        <form action="/battle" method="post" id="battleForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold text-primary">Your Site (URL 1)</label>
+                                    <input type="url" name="url1" class="form-control" placeholder="https://your-site.com" required>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold text-danger">Competitor (URL 2)</label>
+                                    <input type="url" name="url2" class="form-control" placeholder="https://competitor.com" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Battle Keyword</label>
+                                <div class="btn-group w-100 mb-3" role="group">
+                                    <input type="radio" class="btn-check" name="keyword_mode" id="battle_manual" value="manual" checked onchange="toggleKeywordInput('battle')">
+                                    <label class="btn btn-outline-secondary" for="battle_manual">Manual</label>
+                                    
+                                    <input type="radio" class="btn-check" name="keyword_mode" id="battle_auto" value="auto" onchange="toggleKeywordInput('battle')">
+                                    <label class="btn btn-outline-secondary" for="battle_auto">Automatic (from Code)</label>
+                                </div>
+                                <div id="battle_kw_container">
+                                    <input type="text" name="keyword" id="battle_kw_input" class="form-control" placeholder="Ex: SEO Consulting in Lisbon">
+                                </div>
+                                <div id="battle_kw_auto_msg" class="text-muted small mt-2 d-none">
+                                    <i class="fa-solid fa-robot me-1"></i> AI will extract the main keyword from your URL to compare with the competitor.
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning btn-lg w-100 py-3 shadow fw-bold text-dark" id="btn-battle">
+                                <span class="spinner-border spinner-border-sm d-none me-2"></span>
+                                <span class="btn-text">Start SEO Battle</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted small">
+                    <i class="fa-solid fa-circle-info me-1"></i> 
+                    Configure your API keys in the <strong>Admin Panel</strong> to enable AI analysis and PageSpeed insights.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleKeywordInput(type) {
+        const isAuto = document.getElementById(type + '_auto').checked;
+        const inputContainer = document.getElementById(type + '_kw_container');
+        const autoMsg = document.getElementById(type + '_kw_auto_msg');
+        const inputField = document.getElementById(type + '_kw_input');
+
+        if (isAuto) {
+            inputContainer.classList.add('d-none');
+            autoMsg.classList.remove('d-none');
+            inputField.value = ""; // Clear to avoid sending garbage
+        } else {
+            inputContainer.classList.remove('d-none');
+            autoMsg.classList.add('d-none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        function handleFormSubmit(formId, btnId) {
+            const form = document.getElementById(formId);
+            const btn = document.getElementById(btnId);
             
-            <button type="submit">EXECUTE FORENSIC AUDIT</button>
-        </form>
-    </main>
-</body>
-</html>
+            if (form && btn) {
+                form.addEventListener('submit', function() {
+                    const spinner = btn.querySelector('.spinner-border');
+                    const text = btn.querySelector('.btn-text');
+                    
+                    btn.disabled = true;
+                    spinner.classList.remove('d-none');
+                    text.innerText = "Processing Analysis...";
+                });
+            }
+        }
+
+        handleFormSubmit('auditForm', 'btn-audit');
+        handleFormSubmit('battleForm', 'btn-battle');
+    });
+</script>
+{% endblock %}

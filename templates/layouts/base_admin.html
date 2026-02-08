@@ -1,0 +1,34 @@
+{% extends "layouts/base.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        :root { --sidebar-width: 260px; --sidebar-bg: #1e293b; }
+        body { background-color: #f1f5f9; display: flex; min-height: 100vh; }
+        .sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); color: white; position: fixed; height: 100vh; padding: 2rem 1.5rem; }
+        .main-admin-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 2rem; }
+        .nav-link-admin { color: #94a3b8; padding: 0.8rem 1rem; border-radius: 8px; display: flex; align-items: center; text-decoration: none; transition: 0.3s; }
+        .nav-link-admin:hover, .nav-link-admin.active { background: #334155; color: white; }
+    </style>
+{% endblock %}
+
+{% block body_content %}
+    <aside class="sidebar">
+        <h4 class="fw-bold mb-5"><i class="fa-solid fa-rocket me-2 text-primary"></i>SEO Pro</h4>
+        <nav class="nav flex-column gap-2">
+            <a href="/" class="nav-link-admin"><i class="fa-solid fa-house me-3"></i>Back to Website</a>
+            <a href="/admin" class="nav-link-admin {% if request.url.path == '/admin' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line me-3"></i>Dashboard
+            </a>
+            <div class="mt-auto">
+                <a href="/logout" class="nav-link-admin mt-5 text-danger">
+                    <i class="fa-solid fa-right-from-bracket me-3"></i>Logout
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main-admin-content">
+        {% block content %}{% endblock %}
+    </main>
+{% endblock %}

@@ -1,37 +1,178 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Forensic SEO Audit Report</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-    <style>
-        body { background-color: #f4f4f9; }
-        .report-box {
-            background-color: #1e1e1e;
-            color: #00ff41; /* Hacker/Terminal green */
-            padding: 30px;
-            border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace;
-            white-space: pre-wrap; /* Crucial to preserve Python line breaks */
-            line-height: 1.6;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 1px solid #333;
-        }
-        .btn-back { margin-bottom: 20px; display: inline-block; }
-    </style>
-</head>
-<body>
-    <header>
-        <a href="/" class="btn-back">⬅ BACK TO SEARCH</a>
-        <h1>TECHNICAL AUDIT COMPLETED</h1>
-    </header>
+{% extends "layouts/base_site.html" %}
 
-    <div class="report-box">
-{{ report_text }}
+{% block head %}
+<style>
+    /* Estilo para os Cards de Auditoria */
+    .audit-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #f8fafc;
+        padding: 1rem 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        border-bottom: 2px solid #e2e8f0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Estilo para as linhas de dados */
+    .data-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+    }
+
+    .data-row:last-child { border-bottom: none; }
+    .data-row:hover { background: #f8fafc; }
+
+    .label {
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .value {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    /* Estilo das Tags Sim/Não */
+    .tag {
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .tag-sim {
+        background-color: #dcfce7;
+        color: #15803d;
+    }
+
+    .tag-nao {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="report-container p-4 bg-white shadow-sm rounded" id="conteudo-relatorio">
+        <div class="header-box text-center mb-5">
+            <h1 class="display-5 fw-bold">SEO Pro Report</h1>
+            <p class="lead">Analysis for: <span class="text-primary">{{ keyword }}</span></p>
+            <code class="text-break">{{ url }}</code>
+        </div>
+
+        <div class="row mb-5 justify-content-center">
+            <div class="col-lg-9">
+                <canvas id="barChart" style="max-height: 320px;"></canvas>
+            </div>
+        </div>
+
+        <div class="audit-card mb-4">
+            <div class="card-header"><i class="fa-solid fa-gauge-high me-2"></i>Experience Metrics (Core Web Vitals)</div>
+            <div class="card-body">
+                <div class="row text-center py-3">
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <div class="badge rounded-circle bg-{{ vitals.lcp.status if vitals else 'secondary' }}" style="width:15px; height:15px;"></div>
+                            <h3 class="fw-bold mb-0">{{ vitals.lcp.value if vitals else 'N/A' }}</h3>
+                            <small class="text-muted">LCP (Loading)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <div class="badge rounded-circle bg-{{ vitals.fcp.status if vitals else 'secondary' }}" style="width:15px; height:15px;"></div>
+                            <h3 class="fw-bold mb-0">{{ vitals.fcp.value if vitals else 'N/A' }}</h3>
+                            <small class="text-muted">FCP (Interactivity)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <div class="badge rounded-circle bg-{{ vitals.cls.status if vitals else 'secondary' }}" style="width:15px; height:15px;"></div>
+                            <h3 class="fw-bold mb-0">{{ vitals.cls.value if vitals else 'N/A' }}</h3>
+                            <small class="text-muted">CLS (Stability)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if ai_insights %}
+        <div class="row mt-5 mb-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm border-start border-4 border-info">
+                    <div class="card-header bg-white py-3">
+                        <h4 class="fw-bold mb-0 text-info">
+                            <i class="fa-solid fa-robot me-2"></i>AI Suggestions
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded border">
+                                    <h6 class="fw-bold text-muted small uppercase">OPTIMIZED TITLE (SEO)</h6>
+                                    <p class="mb-0 fw-bold">{{ ai_insights.get('suggested_title', 'Not available') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded border">
+                                    <h6 class="fw-bold text-muted small uppercase">SUGGESTED META DESCRIPTION</h6>
+                                    <p class="mb-0 small">{{ ai_insights.get('suggested_meta', 'Not available') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-3 bg-light rounded border">
+                                    <h6 class="fw-bold text-muted small uppercase">STRATEGIC ANALYSIS</h6>
+                                    <p class="mb-0">{{ ai_insights.get('content_analysis', 'No analysis available.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="audit-content-area">{{ report_html|safe }}</div>
     </div>
+</div>
 
-    <footer style="margin-top: 30px; text-align: center;">
-        <button onclick="window.print()">EXPORT AS PDF / PRINT</button>
-    </footer>
-</body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('barChart').getContext('2d');
+    const scores = JSON.parse('{{ scores_json | safe }}');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Performance', 'On-Page', 'Semantic', 'Authority', 'Schema'],
+            datasets: [{
+                data: [scores.performance, scores.on_page, scores.semantic, scores.authority, scores.schema],
+                backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'],
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: { x: { min: 0, max: 100 } }
+        }
+    });
+</script>
+{% endblock %}

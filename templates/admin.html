@@ -1,0 +1,169 @@
+{% extends "layouts/base_admin.html" %}
+
+{% block title %}API Settings - SEO Pro{% endblock %}
+
+{% block content %}
+<header class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">System Settings</h2>
+        <p class="text-muted small">Manage your access keys and artificial intelligence models.</p>
+    </div>
+</header>
+
+<form action="/update-settings" method="post">
+    <div class="card shadow-sm border-0 p-4 mb-4">
+        <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-chart-line me-2"></i>Ranking & Performance APIs</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Google PageSpeed API Key</label>
+                <input type="password" name="pagespeed_api_key" class="form-control" value="{{ user_db.pagespeed_api_key or '' }}" placeholder="PageSpeed API Key">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Open PageRank (Authority)</label>
+                <input type="password" name="openpagerank_api_key" class="form-control" value="{{ user_db.openpagerank_api_key or '' }}" placeholder="Open PageRank API Key">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">SerpApi Key (Rank Tracker)</label>
+                <input type="password" name="serpapi_key" class="form-control" value="{{ user_db.serpapi_key or '' }}" placeholder="SerpApi Key">
+            </div>
+        </div>
+        <div class="form-text mt-2">The Authority key allows measuring domain strength (0-10) via Open PageRank.</div>
+    </div>
+
+    <div class="card shadow-sm border-0 p-4 mb-4">
+        <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-robot me-2"></i>Artificial Intelligence Settings</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">AI Provider</label>
+                <select name="ai_provider" id="ai_provider" class="form-select" onchange="updateModels()">
+                    <option value="gemini" {% if user_db.ai_provider == 'gemini' %}selected{% endif %}>Google Gemini</option>
+                    <option value="openai" {% if user_db.ai_provider == 'openai' %}selected{% endif %}>OpenAI (ChatGPT)</option>
+                    <option value="grok" {% if user_db.ai_provider == 'grok' %}selected{% endif %}>xAI (Grok)</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">AI Model</label>
+                <select name="ai_model" id="ai_model" class="form-select">
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">AI API Key</label>
+                <input type="password" name="ai_api_key" class="form-control" value="{{ user_db.ai_api_key or '' }}" placeholder="Your AI API Key">
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Save Settings
+        </button>
+    </div>
+</form>
+
+<hr class="my-5">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Audit History</h4>
+    <span class="badge bg-primary rounded-pill">{{ history|length }} analyses performed</span>
+</div>
+
+<form id="bulkDeleteForm" action="/delete-multiple" method="post">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Audit History</h5>
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete selected items?')">
+            <i class="fa-solid fa-trash-can me-2"></i>Delete Selected
+        </button>
+    </div>
+
+    <div class="table-responsive bg-white rounded shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th style="width: 40px;" class="ps-4">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                    </th>
+                    <th>URL</th>
+                    <th>Keyword</th>
+                    <th>Date</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for audit in history %}
+                <tr>
+                    <td class="ps-4">
+                        <input type="checkbox" name="audit_ids" value="{{ audit.id }}" class="form-check-input audit-checkbox">
+                    </td>
+                    <td><span class="small fw-bold">{{ audit.url }}</span></td>
+                    <td><span class="badge bg-light text-dark border">{{ audit.keyword }}</span></td>
+                    <td class="small text-muted">{{ audit.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+                    <td class="text-end pe-4">
+                        <a href="/report/{{ audit.id }}" class="btn btn-sm btn-outline-primary border-0"><i class="fa-solid fa-eye"></i></a>
+                        <a href="/delete/{{ audit.id }}" class="btn btn-sm btn-outline-danger border-0" 
+                           onclick="return confirm('Do you want to delete this report?')">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<script>
+// Logic to check/uncheck all checkboxes
+document.getElementById('selectAll').onclick = function() {
+    var checkboxes = document.getElementsByClassName('audit-checkbox');
+    for (var checkbox of checkboxes) {
+        checkbox.checked = this.checked;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mainCheckbox = document.getElementById('selectAll');
+    const auditCheckboxes = document.querySelectorAll('.audit-checkbox');
+    const deleteBtn = document.querySelector('button[type="submit"].btn-danger');
+
+    function updateBtnState() {
+        const anyChecked = Array.from(auditCheckboxes).some(cb => cb.checked);
+        deleteBtn.disabled = !anyChecked;
+    }
+
+    mainCheckbox.addEventListener('change', function() {
+        auditCheckboxes.forEach(cb => cb.checked = mainCheckbox.checked);
+        updateBtnState();
+    });
+
+    auditCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateBtnState);
+    });
+});
+</script>
+
+<script>
+const modelsByProvider = {
+    gemini: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'],
+    openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+    grok: ['grok-beta', 'grok-1']
+};
+
+function updateModels() {
+    const provider = document.getElementById('ai_provider').value;
+    const modelSelect = document.getElementById('ai_model');
+    const currentModel = "{{ user_db.ai_model }}";
+    
+    modelSelect.innerHTML = ''; 
+    
+    modelsByProvider[provider].forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.text = model;
+        if (model === currentModel) option.selected = true;
+        modelSelect.appendChild(option);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', updateModels);
+</script>
+{% endblock %}
