@@ -369,6 +369,14 @@ async def update_settings(request: Request, db: Session = Depends(get_db), pages
         db.commit()
     return RedirectResponse(url='/admin', status_code=303)
 
+"""if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)"""
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    import os
+    # O Koyeb define automaticamente a variável de ambiente 'PORT'
+    port = int(os.environ.get("PORT", 8000))
+    # O host DEVE ser 0.0.0.0 para aceitar conexões externas
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
