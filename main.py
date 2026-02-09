@@ -55,7 +55,14 @@ async def add_rank_status_to_context(request: Request, call_next):
         db.close()
     return await call_next(request)
 
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "chave-secreta-provisoria"))
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=os.getenv("SECRET_KEY", "chave-secreta-provisoria"),
+    same_site="lax",  # Permite que o cookie sobreviva ao redirecionamento do Google
+    https_only=False   # Mantenha False se não tiver domínio próprio com SSL forçado
+)
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -150,7 +157,7 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
 @app.get("/dashboard")
 async def dashboard(request: Request, db: Session = Depends(get_db)):
     user_session = request.session.get('user')
-    if not user_session: return RedirectResponse(url='/login-email')
+    if not user_session: return RedirectResponse(url='/login-email', status_code=303)
     db_user = db.query(models.User).filter(models.User.email == user_session['email']).first()
     
     history_chart = db.query(models.KeywordTracking).filter(models.KeywordTracking.user_id == db_user.id).order_by(models.KeywordTracking.created_at.asc()).limit(20).all()
@@ -168,7 +175,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
 async def admin_panel(request: Request, db: Session = Depends(get_db)):
     user_session = request.session.get('user')
     if not user_session:
-        return RedirectResponse(url='/login-email')
+        return RedirectResponse(url='/login-email', status_code=303)
+
     
     db_user = db.query(models.User).filter(models.User.email == user_session['email']).first()
     if not db_user:
@@ -189,7 +197,7 @@ async def admin_panel(request: Request, db: Session = Depends(get_db)):
 async def handle_audit(request: Request, url: str = Form(...), keyword_mode: str = Form(...), keyword: str = Form(None), db: Session = Depends(get_db)):
     user_session = request.session.get('user')
     if not user_session: 
-        return RedirectResponse(url='/login-email')
+        return RedirectResponse(url='/login-email', status_code=303)
     
     db_user = db.query(models.User).filter(models.User.email == user_session['email']).first()
 
@@ -264,7 +272,7 @@ async def handle_audit(request: Request, url: str = Form(...), keyword_mode: str
 @app.post("/battle")
 async def handle_battle(request: Request, url1: str = Form(...), url2: str = Form(...), keyword_mode: str = Form(...), keyword: str = Form(None), db: Session = Depends(get_db)):
     user_session = request.session.get('user')
-    if not user_session: return RedirectResponse(url='/login-email')
+    if not user_session: return RedirectResponse(url='/login-email', status_code=303)
     db_user = db.query(models.User).filter(models.User.email == user_session['email']).first()
 
     # Define a palavra-chave
@@ -323,8 +331,7 @@ async def handle_battle(request: Request, url1: str = Form(...), url2: str = For
 @app.get("/report/{audit_id}")
 async def view_report(audit_id: int, request: Request, db: Session = Depends(get_db)):
     user_session = request.session.get('user')
-    if not user_session: return RedirectResponse(url='/login-email')
-    
+    if not user_session: return RedirectResponse(url='/login-email', status_code=303)
     audit = db.query(models.AuditHistory).filter(models.AuditHistory.id == audit_id).first()
     if not audit: return RedirectResponse(url='/admin')
 
@@ -353,7 +360,7 @@ async def view_report(audit_id: int, request: Request, db: Session = Depends(get
 @app.get("/delete/{audit_id}")
 async def delete_audit(audit_id: int, request: Request, db: Session = Depends(get_db)):
     user_session = request.session.get('user')
-    if not user_session: return RedirectResponse(url='/login-email')
+    if not user_session: return RedirectResponse(url='/login-email', status_code=303)
     
     audit = db.query(models.AuditHistory).filter(models.AuditHistory.id == audit_id).first()
     if audit:
