@@ -540,25 +540,25 @@ def get_advanced_audit(url, keyword, ps_key=None, opr_key=None):
 
         # 5. LISTA DE CRITÉRIOS ON-PAGE (CONFORME SOLICITADO)
         checks = [
-            (kw_norm in meta_txt_norm, "Palavra-chave na Meta Descrição"),
-            (kw_norm in normalize_text(url), "Palavra-chave na URL"),
-            (kw_norm in normalize_text(full_text)[:500], "Palavra-chave no início do conteúdo"),
-            (kw_norm in normalize_text(full_text), "Palavra-chave no corpo do texto"),
-            (any(kw_norm in normalize_text(h.text) for h in soup.find_all(['h2', 'h3'])), "Palavra-chave nos H2/H3"),
-            (any(kw_norm in normalize_text(img.get('alt', '')) for img in soup.find_all('img')), "Palavra-chave nos Alts"),
-            (len([l for l in soup.find_all('a', href=True) if urlparse(url).netloc in l['href']]) > 0, "Possui Links Internos"),
-            (len([l for l in soup.find_all('a', href=True) if urlparse(url).netloc not in l['href']]) > 0, "Possui Links Externos"),
-            (normalize_text(title_tag)[:30].find(kw_norm[:5]) != -1, "KW no início do Título"),
-            (any(c.isdigit() for c in title_tag), "Número no Título (CTR)"),
-            (any(p in normalize_text(title_tag) for p in ['melhor', 'guia', 'completo', 'dicas', 'como']), "Power Word no Título"),
-            (len(soup.find_all(['img', 'iframe'])) > 0, "Presença de Mídia"),
-            (word_count > 800, "Conteúdo Relevante (+800 palavras)"),
-            (all(len(p.text.split()) < 70 for p in soup.find_all('p')[:3]), "Escaneabilidade (Parágrafos Curtos)"),
-            (is_https, "Protocolo de Segurança HTTPS"),
-            (has_favicon, "Presença de Favicon"),
-            (has_compression, "Compressão de Servidor Ativa"),
-            (is_indexable, "Indexação Permitida (Robots)"),
-            (has_canonical, "Tag Canonical Configurada"),
+            (kw_norm in meta_txt_norm, "Keyword in Meta Description"),
+            (kw_norm in normalize_text(url), "Keyword in URL"),
+            (kw_norm in normalize_text(full_text)[:500], "Keyword at beginning of content"),
+            (kw_norm in normalize_text(full_text), "Keyword in body text"),
+            (any(kw_norm in normalize_text(h.text) for h in soup.find_all(['h2', 'h3'])), "Keyword in H2/H3"),
+            (any(kw_norm in normalize_text(img.get('alt', '')) for img in soup.find_all('img')), "Keyword in Image Alts"),
+            (len([l for l in soup.find_all('a', href=True) if urlparse(url).netloc in l['href']]) > 0, "Has Internal Links"),
+            (len([l for l in soup.find_all('a', href=True) if urlparse(url).netloc not in l['href']]) > 0, "Has External Links"),
+            (normalize_text(title_tag)[:30].find(kw_norm[:5]) != -1, "KW at start of Title"),
+            (any(c.isdigit() for c in title_tag), "Number in Title (CTR boost)"),
+            (any(p in normalize_text(title_tag) for p in ['best', 'guide', 'complete', 'tips', 'how']), "Power Word in Title"),
+            (len(soup.find_all(['img', 'iframe'])) > 0, "Media Presence"),
+            (word_count > 800, "Relevant Content (+800 words)"),
+            (all(len(p.text.split()) < 70 for p in soup.find_all('p')[:3]), "Scanability (Short Paragraphs)"),
+            (is_https, "HTTPS Security Protocol"),
+            (has_favicon, "Favicon Present"),
+            (has_compression, "Server Compression Active"),
+            (is_indexable, "Indexing Allowed (Robots)"),
+            (has_canonical, "Canonical Tag Configured"),
             (has_social, "Social Tags (Open Graph)")
         ]
 
@@ -577,10 +577,10 @@ def get_advanced_audit(url, keyword, ps_key=None, opr_key=None):
                 numeric_scores["performance"] = ps.get('score', 0)
                 vitals_data.update({k: ps.get(k, vitals_data[k]) for k in ["lcp", "fcp", "cls"]})
                 report_html += r_row("Performance Score", f"{numeric_scores['performance']:.0f}/100")
-                report_html += f'<p class="small text-muted mt-2">Métricas Vitais (UX):</p>'
-                report_html += r_row("LCP (Maior Pintura)", vitals_data["lcp"]["value"])
-                report_html += r_row("FCP (Primeira Pintura)", vitals_data["fcp"]["value"])
-                report_html += r_row("CLS (Estabilidade)", vitals_data["cls"]["value"])
+                report_html += f'<p class="small text-muted mt-2">Core Metrics (UX):</p>'
+                report_html += r_row("LCP (Largest Contentful Paint)", vitals_data["lcp"]["value"])
+                report_html += r_row("FCP (First Contentful Paint)", vitals_data["fcp"]["value"])
+                report_html += r_row("CLS (Cumulative Layout Shift)", vitals_data["cls"]["value"])
         else:
             report_html += '<p class="text-muted small">Google PageSpeed API não configurada.</p>'
         report_html += '</div></div>'
