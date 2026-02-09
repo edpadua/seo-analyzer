@@ -87,10 +87,32 @@ async def login_page_google(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-
+# Rota para MOSTRAR a página (GET)
 @app.get("/login-email", response_class=HTMLResponse)
 async def login_email_page(request: Request):
     return templates.TemplateResponse("login-email.html", {"request": request})
+
+# Rota para PROCESSAR o login (POST) - Adicione esta exatamente assim:
+@app.post("/login-email")
+async def auth_login_direct(request: Request, email: str = Form(...), db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        user = models.User(email=email)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    request.session['user'] = {
+        "email": user.email, 
+        "id": user.id, 
+        "name": email.split('@')[0]
+    }
+    # O status_code 303 é OBRIGATÓRIO aqui para o Koyeb
+    return RedirectResponse(url='/dashboard', status_code=303)
+
+"""@app.get("/login-email", response_class=HTMLResponse)
+async def login_email_page(request: Request):
+    return templates.TemplateResponse("login-email.html", {"request": request})"""
 
 @app.get("/login/google")
 async def login_google(request: Request):
