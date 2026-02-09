@@ -22,6 +22,9 @@ from engine import get_advanced_audit, get_ai_seo_insights, get_competitor_battl
 load_dotenv()
 models.Base.metadata.create_all(bind=engine)
 
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 app = FastAPI()
 
 oauth = OAuth()
@@ -82,6 +85,8 @@ async def logout(request: Request):
 @app.get("/login")
 async def login_page_google(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+
 
 @app.get("/login-email", response_class=HTMLResponse)
 async def login_email_page(request: Request):
